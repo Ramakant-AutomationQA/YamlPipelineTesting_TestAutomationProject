@@ -1,0 +1,28 @@
+trigger:
+  - master
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+  - stage: Build
+    displayName: 'BuildStage'
+    jobs:
+      - job: Build
+        displayName: 'BuildMavenProject'
+        steps:
+          - task: Maven@1
+            displayName: 'Maven Package'
+            inputs:
+              mavenPomFile: 'YamlPipelineTesting_TestAutomationProject/pom.xml'
+              goals: 'package'
+          - task: CopyFiles@2
+            displayName: 'Copy files to artifact staging directory'
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '**/target/*.?(war|jar)'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'SampleDevApplication'
